@@ -29,6 +29,10 @@ CREATE TABLE Session (
     FOREIGN KEY (event_id) REFERENCES Event(event_id) ON DELETE CASCADE
 );
 
+-- I have to take time for start_time and end_time so 
+ALTER TABLE session MODIFY start_time TIME;
+ALTER TABLE session MODIFY end_time TIME;
+
 -- Metric table
 CREATE TABLE Metric (
     metric_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -76,10 +80,17 @@ CREATE INDEX idx_timestamp ON Metric(updated_at);
 CREATE INDEX idx_session_event ON Session(event_id);
 
 
-
+use real_time_event_tracking ; 
 desc event ;
 select * from event ;
 
+desc session ; 
+select * from session ; 
+
+select * from metric ; 
+
+
+select * from report ;
 
 
 

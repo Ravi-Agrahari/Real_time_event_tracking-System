@@ -8,22 +8,24 @@ import java.util.List;
 import utility.DBConnection;
 
 public class SessionDAOImpl implements SessionDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public SessionDAOImpl() throws SQLException {
         this.connection = DBConnection.getConnection();
     }
 
     @Override
-    public void addSession(Session session) throws SQLException {
+    public boolean addSession(Session session) throws SQLException {
         String sql = "INSERT INTO Session (event_id, session_name, start_time, end_time, speaker) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, session.getEventId());
             statement.setString(2, session.getSessionName());
-            statement.setDate(3, session.getStartTime());
-            statement.setDate(4, session.getEndTime());
+            statement.setTime(3, session.getStartTime());
+            statement.setTime(4, session.getEndTime());
             statement.setString(5, session.getSpeaker());
-            statement.executeUpdate();
+            int insertedSucessfully  = statement.executeUpdate();
+            
+            return insertedSucessfully > 0 ; 
         }
     }
 
@@ -38,8 +40,8 @@ public class SessionDAOImpl implements SessionDAO {
                     rs.getInt("session_id"),
                     rs.getInt("event_id"),
                     rs.getString("session_name"),
-                    rs.getDate("start_time"),
-                    rs.getDate("end_time"),
+                    rs.getTime("start_time"),
+                    rs.getTime("end_time"),
                     rs.getString("speaker")
                 );
             }
@@ -58,8 +60,8 @@ public class SessionDAOImpl implements SessionDAO {
                     rs.getInt("session_id"),
                     rs.getInt("event_id"),
                     rs.getString("session_name"),
-                    rs.getDate("start_time"),
-                    rs.getDate("end_time"),
+                    rs.getTime("start_time"),
+                    rs.getTime("end_time"),
                     rs.getString("speaker")
                 ));
             }
@@ -79,8 +81,8 @@ public class SessionDAOImpl implements SessionDAO {
                     rs.getInt("session_id"),
                     rs.getInt("event_id"),
                     rs.getString("session_name"),
-                    rs.getDate("start_time"),
-                    rs.getDate("end_time"),
+                    rs.getTime("start_time"),
+                    rs.getTime("end_time"),
                     rs.getString("speaker")
                 ));
             }
@@ -94,8 +96,8 @@ public class SessionDAOImpl implements SessionDAO {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, session.getEventId());
             statement.setString(2, session.getSessionName());
-            statement.setDate(3, session.getStartTime());
-            statement.setDate(4, session.getEndTime());
+            statement.setTime(3, session.getStartTime());
+            statement.setTime(4, session.getEndTime());
             statement.setString(5, session.getSpeaker());
             statement.setInt(6, session.getSessionId());
             statement.executeUpdate();
@@ -103,11 +105,13 @@ public class SessionDAOImpl implements SessionDAO {
     }
 
     @Override
-    public void deleteSession(int sessionId) throws SQLException {
+    public boolean deleteSession(int sessionId) throws SQLException {
         String sql = "DELETE FROM Session WHERE session_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, sessionId);
-            statement.executeUpdate();
+            int done = statement.executeUpdate();
+            
+            return done > 0 ; 
         }
     }
 }

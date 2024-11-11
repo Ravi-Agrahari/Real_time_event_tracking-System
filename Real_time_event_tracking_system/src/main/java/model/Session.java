@@ -1,19 +1,18 @@
-
 package model;
 
-import java.sql.Date;
+import java.sql.Time;
 
 public class Session {
     private int sessionId;
     private int eventId;
     private String sessionName;
-    private Date startTime;
-    private Date endTime;
+    private Time startTime;
+    private Time endTime;
     private String speaker;
 
     // Constructor, getters, and setters
 
-    public Session(int sessionId, int eventId, String sessionName, Date startTime, Date endTime, String speaker) {
+    public Session(int sessionId, int eventId, String sessionName, Time startTime, Time endTime, String speaker) {
         this.sessionId = sessionId;
         this.eventId = eventId;
         this.sessionName = sessionName;
@@ -46,19 +45,19 @@ public class Session {
         this.sessionName = sessionName;
     }
 
-    public Date getStartTime() {
+    public Time getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(Time startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public Time getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(Time endTime) {
         this.endTime = endTime;
     }
 
@@ -69,10 +68,4 @@ public class Session {
     public void setSpeaker(String speaker) {
         this.speaker = speaker;
     }
-    
-    
-    
-    
-    
 }
-

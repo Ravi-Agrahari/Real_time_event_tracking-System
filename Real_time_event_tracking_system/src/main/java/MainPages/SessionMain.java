@@ -1,7 +1,8 @@
 
 
-package controller;
+package MainPages;
 
+import controller.SessionController;
 import java.sql.SQLException;
 
 public class SessionMain {

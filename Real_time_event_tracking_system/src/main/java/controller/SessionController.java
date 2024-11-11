@@ -1,152 +1,159 @@
 package controller;
 
+import java.sql.SQLException;
 import model.Session;
 import service.SessionService;
 
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.List;
+import java.sql.Time;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class SessionController {
-    private final SessionService sessionService;
+    private final SessionService sessionService ;
     private final Scanner scanner;
 
+    // Constructor 
     public SessionController() throws SQLException {
         this.sessionService = new SessionService();
         this.scanner = new Scanner(System.in);
     }
 
-    public void start() {
-        while (true) {
-            System.out.println("\n--- Session Management Dashboard ---");
+    
+    // Start Method 
+    public void start() throws SQLException {
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("\n--- Session Dashboard ---");
             System.out.println("1. Add Session");
-            System.out.println("2. View Session by ID");
-            System.out.println("3. View All Sessions");
-            System.out.println("4. View Sessions by Event ID");
-            System.out.println("5. Update Session");
-            System.out.println("6. Delete Session");
-            System.out.println("7. Exit");
-            System.out.print("Select an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            System.out.println("2. View All Sessions");
+            System.out.println("3. View Session by ID");
+            System.out.println("4. Delete Session");
+            System.out.println("5. Exit");
 
             try {
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine();  // Clear newline
+
                 switch (choice) {
                     case 1 -> addSession();
-                    case 2 -> viewSessionById();
-                    case 3 -> viewAllSessions();
-                    case 4 -> viewSessionsByEventId();
-                    case 5 -> updateSession();
-                    case 6 -> deleteSession();
-                    case 7 -> {
-                        System.out.println("Exiting Session Management...");
-                        return;
+                    case 2 -> viewAllSessions();
+                    case 3 -> viewSessionById();
+                    case 4 -> deleteSession();
+                    case 5 -> {
+                        exit = true;
+                        System.out.println("Exiting Session Dashboard...");
                     }
-                    default -> System.out.println("Invalid option. Please try again.");
+                    default -> System.out.println("Invalid choice! Please try again.");
                 }
-            } catch (SQLException e) {
-                System.err.println("An error occurred: " + e.getMessage());
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+                scanner.nextLine();  // Clear invalid input
             }
         }
     }
 
-    private void addSession() throws SQLException {
-        System.out.println("\n--- Add New Session ---");
-        System.out.print("Enter Event ID: ");
-        int eventId = scanner.nextInt();
-        scanner.nextLine();
-        System.out.print("Enter Session Name: ");
-        String sessionName = scanner.nextLine();
-        System.out.print("Enter Start Time (YYYY-MM-DD): ");
-        Date startTime = Date.valueOf(scanner.nextLine());
-        System.out.print("Enter End Time (YYYY-MM-DD): ");
-        Date endTime = Date.valueOf(scanner.nextLine());
-        System.out.print("Enter Speaker Name: ");
-        String speaker = scanner.nextLine();
+    
+    // method for adding a new session 
+    private void addSession() {
+        try {
+            System.out.print("Enter Event ID(must exist): ");
+            int eventId = scanner.nextInt();
+            scanner.nextLine();  // Clear newline
 
-        Session session = new Session(0, eventId, sessionName, startTime, endTime, speaker);
-        sessionService.addSession(session);
-        System.out.println("Session added successfully.");
-    }
-
-    private void viewSessionById() throws SQLException {
-        System.out.print("\nEnter Session ID: ");
-        int sessionId = scanner.nextInt();
-        Session session = sessionService.getSessionById(sessionId);
-        if (session != null) {
-            displaySession(session);
-        } else {
-            System.out.println("Session not found.");
-        }
-    }
-
-    private void viewAllSessions() throws SQLException {
-        System.out.println("\n--- All Sessions ---");
-        List<Session> sessions = sessionService.getAllSessions();
-        if (sessions.isEmpty()) {
-            System.out.println("No sessions found.");
-        } else {
-            for (Session session : sessions) {
-                displaySession(session);
-            }
-        }
-    }
-
-    private void viewSessionsByEventId() throws SQLException {
-        System.out.print("\nEnter Event ID: ");
-        int eventId = scanner.nextInt();
-        List<Session> sessions = sessionService.getSessionsByEventId(eventId);
-        if (sessions.isEmpty()) {
-            System.out.println("No sessions found for this event.");
-        } else {
-            for (Session session : sessions) {
-                displaySession(session);
-            }
-        }
-    }
-
-    private void updateSession() throws SQLException {
-        System.out.print("\nEnter Session ID to update: ");
-        int sessionId = scanner.nextInt();
-        scanner.nextLine();
-        Session session = sessionService.getSessionById(sessionId);
-        if (session != null) {
-            System.out.print("Enter new Session Name (current: " + session.getSessionName() + "): ");
+            System.out.print("Enter Session Name: ");
             String sessionName = scanner.nextLine();
-            System.out.print("Enter new Start Time (YYYY-MM-DD, current: " + session.getStartTime() + "): ");
-            Date startTime = Date.valueOf(scanner.nextLine());
-            System.out.print("Enter new End Time (YYYY-MM-DD, current: " + session.getEndTime() + "): ");
-            Date endTime = Date.valueOf(scanner.nextLine());
-            System.out.print("Enter new Speaker Name (current: " + session.getSpeaker() + "): ");
+
+            System.out.print("Enter Start Time (HH:MM:SS): ");
+            Time startTime = Time.valueOf(scanner.nextLine().trim());
+
+            System.out.print("Enter End Time (HH:MM:SS): ");
+            Time endTime = Time.valueOf(scanner.nextLine().trim());
+
+            System.out.print("Enter Speaker: ");
             String speaker = scanner.nextLine();
 
-            session.setSessionName(sessionName);
-            session.setStartTime(startTime);
-            session.setEndTime(endTime);
-            session.setSpeaker(speaker);
-            sessionService.updateSession(session);
+            Session session = new Session(0, eventId, sessionName, startTime, endTime, speaker);
+            boolean isAdded = sessionService.addSession(session);
 
-            System.out.println("Session updated successfully.");
-        } else {
-            System.out.println("Session not found.");
+            if (isAdded) {
+                System.out.println("Session added successfully!");
+            } else {
+                System.out.println("Failed to add session.");
+            }
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid time format! Please enter time as HH:MM:SS.");
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter the correct data.");
+            scanner.nextLine();  // Clear invalid input
+        } catch (Exception e) {
+            System.out.println("An error occurred while adding the session. Please try again.");
         }
     }
 
-    private void deleteSession() throws SQLException {
-        System.out.print("\nEnter Session ID to delete: ");
-        int sessionId = scanner.nextInt();
-        sessionService.deleteSession(sessionId);
-        System.out.println("Session deleted successfully.");
+    
+    // method for viewing all session in db 
+    private void viewAllSessions() throws SQLException {
+        System.out.println("\n--- All Sessions ---");
+        sessionService.getAllSessions().forEach(session -> {
+            System.out.println("Session ID: " + session.getSessionId());
+            System.out.println("Event ID: " + session.getEventId());
+            System.out.println("Session Name: " + session.getSessionName());
+            System.out.println("Start Time: " + session.getStartTime());
+            System.out.println("End Time: " + session.getEndTime());
+            System.out.println("Speaker: " + session.getSpeaker());
+            System.out.println("-------------------------");
+        });
     }
 
-    private void displaySession(Session session) {
-        System.out.println("\n--- Session Details ---");
-        System.out.println("Session ID: " + session.getSessionId());
-        System.out.println("Event ID: " + session.getEventId());
-        System.out.println("Session Name: " + session.getSessionName());
-        System.out.println("Start Time: " + session.getStartTime());
-        System.out.println("End Time: " + session.getEndTime());
-        System.out.println("Speaker: " + session.getSpeaker());
+    
+    // method for getting session with the help of Id 
+    private void viewSessionById() {
+        try {
+            System.out.print("Enter Session ID: ");
+            int sessionId = scanner.nextInt();
+            Session session = sessionService.getSessionById(sessionId);
+
+            if (session != null) {
+                System.out.println("Session ID: " + session.getSessionId());
+                System.out.println("Event ID: " + session.getEventId());
+                System.out.println("Session Name: " + session.getSessionName());
+                System.out.println("Start Time: " + session.getStartTime());
+                System.out.println("End Time: " + session.getEndTime());
+                System.out.println("Speaker: " + session.getSpeaker());
+            } else {
+                System.out.println("Session not found.");
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter a valid session ID.");
+            scanner.nextLine();  // Clear invalid input
+        } catch (Exception e) {
+            System.out.println("An error occurred while retrieving the session.");
+            e.printStackTrace();
+        }
+    }
+
+    
+    // method for deleting the session 
+    private void deleteSession() {
+        try {
+            System.out.print("Enter Session ID to delete: ");
+            int sessionId = scanner.nextInt();
+
+            boolean isDeleted = sessionService.deleteSession(sessionId);
+            if (isDeleted) {
+                System.out.println("Session deleted successfully.");
+            } else {
+                System.out.println("Failed to delete session or session not found.");
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter a valid session ID.");
+            scanner.nextLine();  // Clear invalid input
+        } catch (Exception e) {
+            System.out.println("An error occurred while deleting the session.");
+        }
     }
 }

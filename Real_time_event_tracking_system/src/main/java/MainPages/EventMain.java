@@ -1,6 +1,7 @@
 
-package controller;
+package MainPages;
 
+import controller.EventController;
 import java.sql.SQLException;
 
 public class EventMain {

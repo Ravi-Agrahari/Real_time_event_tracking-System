@@ -1,15 +1,15 @@
 
 package dao;
 
+import model.Metric;
 import java.sql.SQLException;
 import java.util.List;
-import model.Metric;
-
 
 public interface MetricDAO {
-    void addMetric(Metric metric) throws SQLException;
+    boolean addMetric(Metric metric) throws SQLException;
     Metric getMetricById(int metricId) throws SQLException;
+    List<Metric> getMetricsBySessionId(int sessionId) throws SQLException;
     List<Metric> getAllMetrics() throws SQLException;
-    void updateMetric(Metric metric) throws SQLException;
-    void deleteMetric(int metricId) throws SQLException;
+    boolean updateMetric(Metric metric) throws SQLException;
+    boolean deleteMetric(int metricId) throws SQLException;
 }
